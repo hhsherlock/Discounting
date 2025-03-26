@@ -1,0 +1,28 @@
+	With Beta but simulation without Beta (beta_mean is 1 forever)
+mean_u_mean_q tensor(3.0068, requires_grad=True)
+mean_u_sigma_q tensor(0.2016, grad_fn=<AddBackward0>)
+sigma_u_mean_q tensor(1.8002, requires_grad=True)
+sigma_u_sigma_q tensor(0.0629, grad_fn=<AddBackward0>)
+sigma_es_mean_q tensor(1.1998, requires_grad=True)
+sigma_es_sigma_q tensor(0.0626, grad_fn=<AddBackward0>)
+beta_sigma_q tensor(0.1794, grad_fn=<AddBackward0>)
+
+	With Beta but simulation without Beta (also with beta_mean
+mean_u_mean_q tensor(1.0806, requires_grad=True)
+mean_u_sigma_q tensor(0.3528, grad_fn=<AddBackward0>)
+sigma_u_mean_q tensor(2.0190, requires_grad=True)
+sigma_u_sigma_q tensor(0.0498, grad_fn=<AddBackward0>)
+sigma_es_mean_q tensor(0.9810, requires_grad=True)
+sigma_es_sigma_q tensor(0.0519, grad_fn=<AddBackward0>)
+beta_mean_q tensor(0.8604, requires_grad=True)
+beta_sigma_q tensor(0.1587, grad_fn=<AddBackward0>)
+		Second time run:
+mean_u_mean_q tensor(1.9638, requires_grad=True)
+mean_u_sigma_q tensor(0.4912, grad_fn=<AddBackward0>)
+sigma_u_mean_q tensor(2.0491, requires_grad=True)
+sigma_u_sigma_q tensor(0.0627, grad_fn=<AddBackward0>)
+sigma_es_mean_q tensor(0.9509, requires_grad=True)
+sigma_es_sigma_q tensor(0.0884, grad_fn=<AddBackward0>)
+beta_mean_q tensor(0.7601, requires_grad=True)
+beta_sigma_q tensor(0.1139, grad_fn=<AddBackward0>)
+

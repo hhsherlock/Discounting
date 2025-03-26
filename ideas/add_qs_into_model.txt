@@ -1,0 +1,2 @@
+1. For time, it is not actual delay time but the subjective time.
+2. Impulsivity can be put into the bernoulli decision process. 

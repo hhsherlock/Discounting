@@ -1,0 +1,20 @@
+person 0:
+cafe
+mean_u_mean_q tensor(2.5420, requires_grad=True)
+mean_u_sigma_q tensor(0.6238, grad_fn=<AddBackward0>)
+sigma_u_mean_q tensor(1.8089, requires_grad=True)
+sigma_u_sigma_q tensor(0.0908, grad_fn=<AddBackward0>)
+sigma_es_mean_q tensor(1.1911, requires_grad=True)
+sigma_es_sigma_q tensor(0.0604, grad_fn=<AddBackward0>)
+beta_mean_q tensor(0.3286, requires_grad=True)
+beta_sigma_q tensor(0.1055, grad_fn=<AddBackward0>)
+
+gamble
+mean_u_mean_q tensor(2.0369, requires_grad=True)
+mean_u_sigma_q tensor(0.4781, grad_fn=<AddBackward0>)
+sigma_u_mean_q tensor(1.7491, requires_grad=True)
+sigma_u_sigma_q tensor(0.0522, grad_fn=<AddBackward0>)
+sigma_es_mean_q tensor(1.2509, requires_grad=True)
+sigma_es_sigma_q tensor(0.0764, grad_fn=<AddBackward0>)
+beta_mean_q tensor(0.3072, requires_grad=True)
+beta_sigma_q tensor(0.0855, grad_fn=<AddBackward0>)

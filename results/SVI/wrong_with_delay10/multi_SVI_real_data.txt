@@ -1,0 +1,35 @@
+Cafe: 
+mean_u_mean_q tensor(18.6344, requires_grad=True)
+mean_u_sigma_q tensor(0.0385, grad_fn=<AddBackward0>)
+sigma_u_mean_q tensor(0.7381, requires_grad=True)
+sigma_u_sigma_q tensor(0.0288, grad_fn=<AddBackward0>)
+sigma_es_mean_q tensor(2.2619, requires_grad=True)
+sigma_es_sigma_q tensor(0.0561, grad_fn=<AddBackward0>)
+
+Gambling:
+mean_u_mean_q tensor(18.2957, requires_grad=True)
+mean_u_sigma_q tensor(0.0519, grad_fn=<AddBackward0>)
+sigma_u_mean_q tensor(0.6472, requires_grad=True)
+sigma_u_sigma_q tensor(0.0425, grad_fn=<AddBackward0>)
+sigma_es_mean_q tensor(2.3528, requires_grad=True)
+sigma_es_sigma_q tensor(0.0566, grad_fn=<AddBackward0>)
+
+Cafe (with beta):
+mean_u_mean_q tensor(5.7301, requires_grad=True)
+mean_u_sigma_q tensor(0.2750, grad_fn=<AddBackward0>)
+sigma_u_mean_q tensor(1.4297, requires_grad=True)
+sigma_u_sigma_q tensor(0.0733, grad_fn=<AddBackward0>)
+sigma_es_mean_q tensor(1.5703, requires_grad=True)
+sigma_es_sigma_q tensor(0.0920, grad_fn=<AddBackward0>)
+beta_mean_q tensor(0.1396, requires_grad=True)
+beta_sigma_q tensor(0.0284, grad_fn=<AddBackward0>)
+
+Gamb (with beta):
+mean_u_mean_q tensor(4.1510, requires_grad=True)
+mean_u_sigma_q tensor(0.2267, grad_fn=<AddBackward0>)
+sigma_u_mean_q tensor(1.3216, requires_grad=True)
+sigma_u_sigma_q tensor(0.0625, grad_fn=<AddBackward0>)
+sigma_es_mean_q tensor(1.6784, requires_grad=True)
+sigma_es_sigma_q tensor(0.0852, grad_fn=<AddBackward0>)
+beta_mean_q tensor(0.1289, requires_grad=True)
+beta_sigma_q tensor(0.0284, grad_fn=<AddBackward0>)

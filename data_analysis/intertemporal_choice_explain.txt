@@ -1,0 +1,9 @@
+you have to compute the LL value from the columns val_basic times val_prc
+val_basic is the SS. in loopID is the participantnumber and context is 0 for café or 1 for gambling environment. 
+	So you should filter the data for one context first. In total every participant has 170 trials in each context
+in the Version column is coded which taskversion was used, 
+	because each task version uses different delays and LL values.
+For the results, you should observe that overall they discount more in context 1 than in context 0.
+The cool thing is, for this data we have also the data from around 25 questionaires. Really alot, 
+	so we could see which questionaires hold valuable information.
+response is the choice with 0 = SS chosen and 1 = LL chosen.

@@ -1,0 +1,38 @@
+29/03/2024:
+old:
+	without setting beta to only positive (they are wrong)
+
+beta:
+	set the beta to positive, tried different samples amounts.
+
+shift:
+	shift_0 and shift_1: 
+		The first shift hierarchical models, the models are the exact same. All the parameters shift
+		expect for beta, which is the same for each individual in both contexts. The sigma_u and sigma_es 
+		have big difference in the former beta runs. mean and beta are not that different.
+
+	constant_mean_u & pos_mean_u:
+		same model as above but with constant mean_u and positive mean_u.
+
+	(two above used model is):
+	    group_mean_u_mean = pyro.sample("group_mean_u_mean", Normal(loc = torch.tensor(0., device='cuda'), scale = torch.tensor(2., device='cuda')))
+	    group_mean_u_sigma = pyro.sample("group_mean_u_sigma", Gamma(torch.tensor(1., device='cuda'), torch.tensor(2., device='cuda')))
+	    group_log_sigma_u_mean = pyro.sample("group_log_sigma_u_mean", Normal(torch.tensor(1., device='cuda'), torch.tensor(2., device='cuda')))
+	    group_log_sigma_u_sigma = pyro.sample("group_log_sigma_u_sigma", Gamma(torch.tensor(1., device='cuda'), torch.tensor(2., device='cuda')))
+	    group_log_sigma_es_mean = pyro.sample("group_log_sigma_es_mean", Normal(torch.tensor(1., device='cuda'), torch.tensor(2., device='cuda')))
+	    group_log_sigma_es_sigma = pyro.sample("group_log_sigma_es_sigma", Gamma(torch.tensor(1., device='cuda'), torch.tensor(2., device='cuda')))
+	    group_beta_mean = pyro.sample("group_beta_mean", Gamma(torch.tensor(1., device='cuda'), torch.tensor(2., device='cuda')))
+	    group_beta_sigma = pyro.sample("group_beta_sigma", Gamma(torch.tensor(1., device='cuda'), torch.tensor(2., device='cuda')))
+	    # shift
+	    group_shift_mean_u_mean = pyro.sample("group_shift_mean_u_mean", Normal(loc = torch.tensor(0., device='cuda'), scale = torch.tensor(2., device='cuda')))
+	    group_shift_mean_u_sigma = pyro.sample("group_shift_mean_u_sigma", Gamma(torch.tensor(1., device='cuda'), torch.tensor(2., device='cuda')))
+	    group_shift_log_sigma_u_mean = pyro.sample("group_shift_log_sigma_u_mean", Normal(torch.tensor(1., device='cuda'), torch.tensor(2., device='cuda')))
+	    group_shift_log_sigma_u_sigma = pyro.sample("group_shift_log_sigma_u_sigma", Gamma(torch.tensor(1., device='cuda'), torch.tensor(2., device='cuda')))
+	    group_shift_log_sigma_es_mean = pyro.sample("group_shift_log_sigma_es_mean", Normal(torch.tensor(1., device='cuda'), torch.tensor(2., device='cuda')))
+	    group_shift_log_sigma_es_sigma = pyro.sample("group_shift_log_sigma_es_sigma", Gamma(torch.tensor(1., device='cuda'), torch.tensor(2., device='cuda')))
+
+
+
+
+	shift_beta:
+		    
