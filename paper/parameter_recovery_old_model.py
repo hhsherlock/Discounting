@@ -18,15 +18,14 @@ import matplotlib.pyplot as plt
 from statistics import mean
 import itertools
 import pyro.distributions as dist
-# import no_sigma_es_no_meanu as agent
 import pickle
 
 #-------------------------initialisation---------------------------------------
 # initialise the param sample range (according to the already inferred results)
 log_sigma_u_list = np.linspace(-2., 2., 1000)
 log_a_list = np.linspace(-2., 2., 1000)
-log_b_list = np.linspace(-1., 5., 1000)
-log_beta_list = np.linspace(-2, 6, 1000)
+log_b_list = np.linspace(-2., 2., 1000)
+log_beta_list = np.linspace(-2, 2.5, 1000)
 
 param_list_list = [log_sigma_u_list, log_a_list, log_b_list, log_beta_list]
 
@@ -84,11 +83,12 @@ def simulation(params):
 
     beta = np.repeat([np.exp(params[3])], trial_num)
 
-    sigma_combine = sigma_u/(1+b*np.exp(-a*whole[:,0]))
+    delay = 1/(1+b*np.exp(-a*whole[:,0]))
 
     # major calculation 
-    inferred_estimation = (whole[:,2])/(sigma_combine + 1)
-
+    inferred_estimation = (whole[:,2]*sigma_u**2)/(delay**2 + sigma_u**2)
+    
+    inferred_sigma = ((sigma_u**2*delay**2)/(sigma_u**2 + delay**2))**0.5
 
 
 
@@ -97,11 +97,13 @@ def simulation(params):
     # change everything to tensor
     # whole = torch.tensor(whole)
     inferred_estimation = torch.tensor(inferred_estimation)
-
+    inferred_sigma = torch.tensor(inferred_sigma)
     beta = torch.tensor(beta)
-    sum = inferred_estimation + torch.tensor(20.)
 
-    softmax_args = torch.stack([beta*inferred_estimation/sum, beta*torch.tensor(20.)/sum])
+    e_dist  = dist.Normal(inferred_estimation, inferred_sigma)
+    pos = 1 - e_dist.cdf(torch.tensor(20.))
+    softmax_args = torch.stack([beta*pos, beta*(1-pos)])
+    # softmax_args = torch.stack([beta*inferred_estimation, beta*torch.tensor(20.)])
     p = torch.softmax(softmax_args, dim = 0)[0]
 
     inferred_response_distr = dist.Bernoulli(probs=p)
@@ -155,6 +157,10 @@ for i in range(agent_num):
 data = np.array(data)
 param = np.array(param)
 
+#-------------------------------inference-----------------------------------
+# doing inference
+
+
 def model(data):
     # sigma_es = (1-nova)a*e^(b*delay) + nova*c (as in constant)
     # in the order of 
@@ -199,13 +205,15 @@ def model(data):
         b = torch.exp(locs[:,2])[group_indices]
         beta = torch.exp(locs[:,3])[group_indices]
 
-        sigma_combine = sigma_u/(1+b*torch.exp(-a*data[:,:,0].view(-1)))
+        delay = 1/(1+b*torch.exp(-a*data[:,:,0].view(-1)))
         
-        e_mean = (data[:,:,2].view(-1))/(1 + sigma_combine)
+        e_mean = (data[:,:,2].view(-1)*sigma_u**2)/(delay**2 + sigma_u**2)
+        e_sigma = ((sigma_u**2*delay**2)/(sigma_u**2 + delay**2))**0.5
 
-        sum = e_mean + torch.tensor(20.)
-
-        softmax_args = torch.stack([beta*e_mean/sum, beta*torch.tensor(20.)/sum])
+        e_dist  = dist.Normal(e_mean, e_sigma)
+        pos = 1 - e_dist.cdf(torch.tensor(20.))
+        softmax_args = torch.stack([beta*pos, beta*(1-pos)])
+        # softmax_args = torch.stack([beta*e_mean, beta*torch.tensor(20.)])
         p = torch.softmax(softmax_args, dim = 0)[0]
         pyro.sample("obs", dist.Bernoulli(probs = p), obs=data[:,:,3].view(-1))
     # return locs
@@ -263,13 +271,8 @@ def guide(data):
     return {'tau': tau, 'mu': mu, 'locs': locs, 'm_locs': m_locs, 'st_locs': st_locs}
 
 
-#-------------------------------inference-----------------------------------
-# doing inference
-
 real_data = data
 real_data = torch.tensor(real_data).to('cuda')
-
-# print(real_data.shape)
 # this is for running the notebook in our testing framework
 smoke_test = ('CI' in os.environ)
 # the step was 2000
@@ -303,8 +306,7 @@ plt.plot(loss)
 plt.xlabel("iter step")
 plt.ylabel("ELBO loss")
 plt.title("ELBO minimization during inference")
-plt.savefig('/home/yaning/Documents/Discounting/paper/results/parameter_recovery.png')
-
+plt.savefig('/home/yaning/Documents/Discounting/paper/results/parameter_recovery_old_model.png')
 
 
 pos_dict = {}
@@ -319,9 +321,8 @@ both_dict = {}
 both_dict['real_param'] = param
 both_dict['inferred_param'] = numpy_dict
 
-
-with open('/home/yaning/Documents/Discounting/paper/results/parameter_recovery.pkl', 'wb') as f:
+with open('/home/yaning/Documents/Discounting/paper/results/parameter_recovery_old_model.pkl', 'wb') as f:
     pickle.dump(both_dict, f)
 
-with open('/home/yaning/Documents/Discounting/paper/results/parameter_recovery_losses.pkl', 'wb') as f:
+with open('/home/yaning/Documents/Discounting/paper/results/parameter_recovery_old_model_losses.pkl', 'wb') as f:
     pickle.dump(loss, f)
