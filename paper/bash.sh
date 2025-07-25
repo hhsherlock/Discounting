@@ -7,4 +7,4 @@ conda activate spike
 export CUDA_VISIBLE_DEVICES=0
 
 # Run the Python script
-python /home/yaning/Documents/Discounting/paper/parameter_recovery.py
+python /home/yaning/Documents/Discounting/paper/parameter_recovery_tanh.py
