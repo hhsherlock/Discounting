@@ -18,16 +18,18 @@ import matplotlib.pyplot as plt
 from statistics import mean
 import itertools
 import pyro.distributions as dist
+# import no_sigma_es_no_meanu as agent
 import pickle
 
 #-------------------------initialisation---------------------------------------
 # initialise the param sample range (according to the already inferred results)
-log_sigma_u_list = np.linspace(-2., 2., 2000)
-log_a_list = np.linspace(-2., 2., 2000)
-log_b_list = np.linspace(-2., 2., 2000)
-log_beta_list = np.linspace(-2., 2.5, 2000)
+a_one_list = np.linspace(-1., 3., 1000)
+log_a_two_list = np.linspace(-1., 3., 1000)
+log_x_zero_list = np.linspace(0, 5., 1000)
+log_p_list = np.linspace(-3, 1, 1000)
+log_beta_list = np.linspace(1, 6, 1000)
 
-param_list_list = [log_sigma_u_list, log_a_list, log_b_list, log_beta_list]
+param_list_list = [a_one_list, log_a_two_list, log_x_zero_list, log_p_list, log_beta_list]
 
 # initialise environment values
 repetition = 10
@@ -60,35 +62,40 @@ whole = multiplied_array
 
 #-------------------------define functions-------------------------------------
 def sample_param():
-    log_sigma_u = np.random.choice(param_list_list[0])
-    log_a = np.random.choice(param_list_list[1])
-    log_b = np.random.choice(param_list_list[2])
-    log_beta = np.random.choice(param_list_list[3])
+    a_one = np.random.choice(param_list_list[0])
+    log_a_two = np.random.choice(param_list_list[1])
+    log_x_zero = np.random.choice(param_list_list[2])
+    log_p = np.random.choice(param_list_list[3])
+    log_beta = np.random.choice(param_list_list[4])
 
-    params = [log_sigma_u, log_a, log_b, log_beta]
+    params = [a_one, log_a_two, log_x_zero, log_p, log_beta]
     
     return params
 
 # get the actions and add them to the data
 def simulation(params):
 
-    sigma_u = np.exp(params[0])
-    sigma_u = np.repeat([sigma_u], trial_num)
+    a_one = params[0]
+    a_one = np.repeat([a_one], trial_num)
 
-    a = np.exp(params[1])
-    a = np.repeat([a], trial_num)
+    a_two = np.exp(params[1])
+    a_two = np.repeat([a_two], trial_num)
 
-    b = np.exp(params[2])
-    b = np.repeat([b], trial_num)
+    x_zero = np.exp(params[2]) + 1
+    x_zero = np.repeat([x_zero], trial_num)
 
-    beta = np.repeat([np.exp(params[3])], trial_num)
+    p = np.exp(params[3])
+    p = np.repeat([p], trial_num)
 
-    delay = 1/(1+b*np.exp(-a*whole[:,0]))
+    beta = np.exp(params[4])
+    beta = np.repeat([beta], trial_num)
+
+
+    sigma_combine = a_two + (a_one-a_two)/(1+ (whole[:,0]/x_zero)**p)
 
     # major calculation 
-    inferred_estimation = (whole[:,2]*sigma_u**2)/(delay**2 + sigma_u**2)
-    
-    inferred_sigma = ((sigma_u**2*delay**2)/(sigma_u**2 + delay**2))**0.5
+    inferred_estimation = (whole[:,2])/(sigma_combine**2 + 1)
+
 
 
 
@@ -97,13 +104,11 @@ def simulation(params):
     # change everything to tensor
     # whole = torch.tensor(whole)
     inferred_estimation = torch.tensor(inferred_estimation)
-    inferred_sigma = torch.tensor(inferred_sigma)
-    beta = torch.tensor(beta)
 
-    e_dist  = dist.Normal(inferred_estimation, inferred_sigma)
-    pos = 1 - e_dist.cdf(torch.tensor(20.))
-    softmax_args = torch.stack([beta*pos, beta*(1-pos)])
-    # softmax_args = torch.stack([beta*inferred_estimation, beta*torch.tensor(20.)])
+    beta = torch.tensor(beta)
+    sum = inferred_estimation + torch.tensor(20.)
+
+    softmax_args = torch.stack([beta*inferred_estimation/sum, beta*torch.tensor(20.)/sum])
     p = torch.softmax(softmax_args, dim = 0)[0]
 
     inferred_response_distr = dist.Bernoulli(probs=p)
@@ -126,8 +131,8 @@ def check_percentage(params):
 
 
 #--------------------------sampling--------------------------------------
-sample_num = 5000
-agent_num = 1000
+sample_num = 1000
+agent_num = 100
 
 # get an array of good parameters
 good_params = []
@@ -157,10 +162,6 @@ for i in range(agent_num):
 data = np.array(data)
 param = np.array(param)
 
-#-------------------------------inference-----------------------------------
-# doing inference
-
-
 def model(data):
     # sigma_es = (1-nova)a*e^(b*delay) + nova*c (as in constant)
     # in the order of 
@@ -169,7 +170,7 @@ def model(data):
     # 2:log_a
     # 3:log_b
     # 4:log_beta
-    num_params = 4
+    num_params = 5
     num_agents = data.shape[0]
     num_trials = data.shape[1]
     # define hyper priors over model parameters
@@ -200,26 +201,25 @@ def model(data):
     group_indices = torch.arange(num_agents).unsqueeze(1).repeat(1, num_trials).reshape(-1)
 
     with pyro.plate('data', num_agents*num_trials):
-        sigma_u = torch.exp(locs[:,0])[group_indices]
-        a = torch.exp(locs[:,1])[group_indices]
-        b = torch.exp(locs[:,2])[group_indices]
-        beta = torch.exp(locs[:,3])[group_indices]
+        a_one = locs[:,0][group_indices]
+        a_two = torch.exp(locs[:,1])[group_indices]
+        x_zero = torch.exp(locs[:,2])[group_indices] + 1
+        p = torch.exp(locs[:,3])[group_indices] 
+        beta = torch.exp(locs[:,4])[group_indices]
 
-        delay = 1/(1+b*torch.exp(-a*data[:,:,0].view(-1)))
+        sigma_combine = a_two + (a_one-a_two)/(1+(data[:,:,0].view(-1)*10/x_zero)**p)
         
-        e_mean = (data[:,:,2].view(-1)*sigma_u**2)/(delay**2 + sigma_u**2)
-        e_sigma = ((sigma_u**2*delay**2)/(sigma_u**2 + delay**2))**0.5
+        e_mean = (data[:,:,2].view(-1))/(1 + sigma_combine)
 
-        e_dist  = dist.Normal(e_mean, e_sigma)
-        pos = 1 - e_dist.cdf(torch.tensor(20.))
-        softmax_args = torch.stack([beta*pos, beta*(1-pos)])
-        # softmax_args = torch.stack([beta*e_mean, beta*torch.tensor(20.)])
+        sum = e_mean + torch.tensor(20.)
+
+        softmax_args = torch.stack([beta*e_mean/sum, beta*torch.tensor(20.)/sum])
         p = torch.softmax(softmax_args, dim = 0)[0]
         pyro.sample("obs", dist.Bernoulli(probs = p), obs=data[:,:,3].view(-1))
     # return locs
 
 def guide(data):
-    num_params = 4
+    num_params = 5
     num_agents = data.shape[0]
     # biject_to(constraint) looks up a bijective Transform from constraints.real 
     # to the given constraint. The returned transform is guaranteed to have 
@@ -271,8 +271,13 @@ def guide(data):
     return {'tau': tau, 'mu': mu, 'locs': locs, 'm_locs': m_locs, 'st_locs': st_locs}
 
 
+#-------------------------------inference-----------------------------------
+# doing inference
+
 real_data = data
 real_data = torch.tensor(real_data).to('cuda')
+
+# print(real_data.shape)
 # this is for running the notebook in our testing framework
 smoke_test = ('CI' in os.environ)
 # the step was 2000
@@ -306,7 +311,8 @@ plt.plot(loss)
 plt.xlabel("iter step")
 plt.ylabel("ELBO loss")
 plt.title("ELBO minimization during inference")
-plt.savefig('/home/yaning/Documents/Discounting/paper/results/parameter_recovery_old_model.png')
+plt.savefig('/home/yaning/Documents/Discounting/paper/results/parameter_recovery_boltzmann.png')
+
 
 
 pos_dict = {}
@@ -321,8 +327,9 @@ both_dict = {}
 both_dict['real_param'] = param
 both_dict['inferred_param'] = numpy_dict
 
-with open('/home/yaning/Documents/Discounting/paper/results/parameter_recovery_old_model.pkl', 'wb') as f:
+
+with open('/home/yaning/Documents/Discounting/paper/results/parameter_recovery_boltzmann.pkl', 'wb') as f:
     pickle.dump(both_dict, f)
 
-with open('/home/yaning/Documents/Discounting/paper/results/parameter_recovery_old_model_losses.pkl', 'wb') as f:
+with open('/home/yaning/Documents/Discounting/paper/results/parameter_recovery_losses_boltzmann.pkl', 'wb') as f:
     pickle.dump(loss, f)

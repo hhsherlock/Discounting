@@ -23,10 +23,10 @@ import pickle
 
 #-------------------------initialisation---------------------------------------
 # initialise the param sample range (according to the already inferred results)
-log_sigma_u_list = np.linspace(-2., 2., 1000)
-log_a_list = np.linspace(-2., 2., 1000)
-log_b_list = np.linspace(-1., 5., 1000)
-log_beta_list = np.linspace(-2, 6, 1000)
+log_sigma_u_list = np.linspace(-2., 2., 2000)
+log_a_list = np.linspace(-2,  2., 2000)
+log_b_list = np.linspace(-2., 2., 2000)
+log_beta_list = np.linspace(-2, 2.5, 2000)
 
 param_list_list = [log_sigma_u_list, log_a_list, log_b_list, log_beta_list]
 
@@ -87,7 +87,7 @@ def simulation(params):
     sigma_combine = sigma_u/(1+b*np.exp(-a*whole[:,0]))
 
     # major calculation 
-    inferred_estimation = (whole[:,2])/(sigma_combine + 1)
+    inferred_estimation = (whole[:,2])/(sigma_combine**2 + 1)
 
 
 
@@ -125,7 +125,7 @@ def check_percentage(params):
 
 #--------------------------sampling--------------------------------------
 sample_num = 1000
-agent_num = 100
+agent_num = 1000
 
 # get an array of good parameters
 good_params = []
@@ -201,7 +201,7 @@ def model(data):
 
         sigma_combine = sigma_u/(1+b*torch.exp(-a*data[:,:,0].view(-1)))
         
-        e_mean = (data[:,:,2].view(-1))/(1 + sigma_combine)
+        e_mean = (data[:,:,2].view(-1))/(1 + sigma_combine**2)
 
         sum = e_mean + torch.tensor(20.)
 
