@@ -1,1 +1,2 @@
 source /home/yaning/Documents/python_env/llm/bin/activate
+source /home/yaning/Documents/python_envs/spike/bin/activate
